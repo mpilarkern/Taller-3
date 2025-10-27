@@ -5,16 +5,14 @@
 
 using namespace std;
 
-vector<vector<int>> grafo;
-
-int bfs(const vector<vector<int>>& G, int v) {
-    int n = G.size();
-    vector<int> pred(n);
-    vector<int> orden(n);
+int bfs(const vector<vector<int>>& G, int n, int m) {
+    int nodos = G.size();
+    vector<int> pred(nodos);
+    vector<int> orden(nodos);
     queue<int> lista;
 
     int sig = 1;
-    int raiz = v;
+    int raiz = n;
     pred[raiz] = 0;
     orden[raiz] = sig;
     lista.push(raiz);
@@ -31,4 +29,15 @@ int bfs(const vector<vector<int>>& G, int v) {
         }
         lista.pop();
     }
+    //cómo hago para que devuelva la distancia entre n y m?
+}
+
+vector<vector<int>> misteryMachine(int n, int m) {
+    vector<vector<int>> grafo(2*m + 1);
+    for (int v = 1; v <= 2*m; v++) {
+        grafo[v].push_back(2*v);
+        grafo[v].push_back(v - 1);
+    }
+
+    return grafo;
 }
