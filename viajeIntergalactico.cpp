@@ -5,38 +5,35 @@
 
 using namespace std;
 
-//idea general del ejercicio: corro dijkstra sobre el grafo (nodos: planetas, aristas: portales con peso determinado por el tiempo de la transferencia) 
-//y me guardo un arreglo de tamaño n que en la i-ésima posición diga el tiempo que tardo en llegar desde el planeta 1 al i por el camino mínimo (-1 si no se puede llegar de 1 a i).
-//Si el tiempo que tardo en llegar de 1 a i coincide con algún tiempo en el que llega otro viajero al planeta i, sumo 1.
-
 long long INF = 1e18;
 
-int dijkstra_modificado(vector<vector<int>> G, vector<vector<int>> costos){ //quiero calcular el camino mínimo entre 1 y n
-    int n = G.size();
+int dijkstra_modificado(vector<vector<int>> grafo, vector<vector<int>> longitud, int v) {
+    int n = grafo.size();
+    vector<int> S = {v};
     vector<int> V(n);
-    vector<int> S = {0};
-    vector<int> pi(n);
+    vector<int> minDist(n);
     vector<int> pred(n);
-    int w = 0;
-    pred[0] = 0;
 
-    for (int i = 1; i < n; i++){
-        if (find(G[0].begin(), G[0].end(), i) != G[0].end()){
-            pi[i] = costos[0][i];
-            pred[i] = 0;
+    for (int i = 0; i < n; i++) {
+        V[i] = i+1;
+    }
+
+    minDist[v] = 0;
+    pred[v] = 0;
+
+    for (int u=1; u < n;  u++) {
+        if (find(grafo[v].begin(), grafo[v].end(), u) != grafo[v].end()) {
+            minDist[u] = longitud[v][u];
+            pred[u] = v;
         }
         else {
-            pi[i] = INF;
-            pred[i] = INF;
+            minDist[u] = INF;
+            pred[u] = INF;
         }
     }
 
-    while (S.size() < n){
-        for (int v = 0; v < n; v++) {
-            if (!(find(S.begin(), S.end(), v) != S.end()) && pi[v] <= pi[w]) {
-                w = v;
-            }
-        }
-        S.push_back(w);
+    while (S.size() < n) {
+
     }
+    return minDist[n-1];
 }
