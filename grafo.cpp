@@ -24,20 +24,13 @@ public:
         }
     }
 
-    bool tieneArista(const tuple<int, int, int>& arista) {
-        int v = get<0>(arista);
-        int w = get<1>(arista);
-        int peso = get<2>(arista);
-        pair<int, int> aux = {w, peso};
+    bool tieneArista(int v, int w, int peso) {
+        pair<int, int> arista = {w, peso};
 
-        return (find(N[v].begin(), N[v].end(), aux) != N[v].end());
+        return (find(N[v].begin(), N[v].end(), arista) != N[v].end());
     }
 
-    void agregarArista(const tuple<int, int, int>& arista) {
-        int v = get<0>(arista);
-        int w = get<1>(arista);
-        int peso = get<2>(arista);
-
+    void agregarArista(int v, int w, int peso) {
         N[v].push_back({w, peso});
         N[w].push_back({v, peso});
     }
