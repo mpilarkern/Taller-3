@@ -26,6 +26,10 @@ public:
         }
     }
 
+    int nodos() {
+        return N.size();
+    }
+
     bool tieneArista(int v, int w) {
         for (pair<int, int> vecino:N[v]) {
             if (vecino.first == w) {
@@ -50,33 +54,33 @@ public:
         return INF;
     }
 
-    int nodos() {
-        return N.size();
+    vector<pair<int, int>> vecindad(int v) {
+        return N[v];
     }
 };
 
 int dijkstra_modificado(grafoPonderado grafo, int v) {
-    priority_queue<int> S;
-    vector<long long> minDist;
-    vector<int> pred;
     int n = grafo.nodos();
+    priority_queue<pair<long long, int>> candidatos;
+    vector<int> S(n, 0);
+    vector<long long> minDist(n, INF);
     
-    S.push(v);
+    candidatos.push({0, v});
     minDist[v] = 0;
-    pred[v] = 0;
 
-    for (int u = 0; u != v; u++) {
-        if (grafo.tieneArista(v, u)) {
-            minDist[u] = grafo.pesoArista(v, u);
-            pred[u] = v;
+    while (!candidatos.empty()) {
+        pair<long long, int> candidato = candidatos.top();
+        long long distancia = -candidato.first;
+        int w = candidato.second;
+        candidatos.pop();
+        
+        for (pair<int, int> arista: grafo.vecindad(w)) { 
+            int u = arista.first;
+            int c = arista.second;
+            if (minDist[u] > distancia + c) {
+                minDist[u] = minDist[w] + c;
+            }
         }
-        else{
-            minDist[u] = INF;
-            pred[u] = INF;
-        }
-    }
-
-    while (S.size() < n) {
     }
     return 0;
 }
