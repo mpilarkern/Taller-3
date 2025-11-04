@@ -3,6 +3,7 @@
 #include<algorithm>
 #include<iostream>
 #include<queue>
+#include<tuple>
 
 using namespace std;
 
@@ -13,13 +14,14 @@ private:
     vector<vector<pair<long long, long long>>> N;
 
 public:
-    void init(long long cantNodos, const vector<tuple<long long, long long, long long>>& listaAristas) {
+    void init(long long cantNodos, vector<tuple<long long, long long, long long>>& listaAristas) {
         N.resize(cantNodos);
 
         for (tuple<long long, long long, long long> arista: listaAristas) {
             long long v = get<0>(arista);
             long long w = get<1>(arista);
             long long peso = get<2>(arista);
+
 
             N[v].push_back({w, peso});
             N[w].push_back({v, peso});
@@ -59,6 +61,17 @@ public:
     }
 };
 
+int consecutivos(const vector<long long>& lista, long long posInicial){
+    int contador = 1;
+    for (int i = posInicial; i < lista.size() - 1; i++){
+        if (lista[i] + 1 != lista[i + 1]) {
+            break;
+        }
+        contador ++;
+    }
+    return contador;
+}
+
 vector<long long> dijkstra_modificado(grafoPonderado& grafo, vector<vector<long long>> tiemposBloqueados, long long v) {
     long long n = grafo.nodos();
     priority_queue<pair<long long, long long>> candidatos;
@@ -73,19 +86,24 @@ vector<long long> dijkstra_modificado(grafoPonderado& grafo, vector<vector<long 
         long long distancia = -candidato.first;
         long long w = candidato.second;
         candidatos.pop();
-        if (S[w] == 1) continue;
+        if (S[w] == 1) continue; //cambiar por if S[w] == 0
         S[w] = 1;
-
-        for (pair<long long, long long> vecino: grafo.vecindad(w)) {            
-            if (S[vecino.first] == 0 && vecino.second + minDist[w] < minDist[vecino.first]) {
-                minDist[vecino.first] = vecino.second + minDist[w];
-                long long distancia = -minDist[vecino.first];
-                candidatos.push({distancia, vecino.first});
+        if (w != n) {
+            long long t = minDist[w];
+            if (!tiemposBloqueados[w].empty()) {
+                auto lb = lower_bound(tiemposBloqueados[w].begin(), tiemposBloqueados[w].end(), t);
+                if (lb != tiemposBloqueados[w].end() && *lb == t) {
+                    long long posInicial = lb - tiemposBloqueados[w].begin();
+                    long long tAdicional = consecutivos(tiemposBloqueados[w], posInicial);
+                    t += tAdicional;
+                }
             }
 
-            for (long long t: tiemposBloqueados[vecino.first]) {
-                if (minDist[vecino.first] == t) {
-                    minDist[vecino.first] = minDist[vecino.first] + 1;
+            for (pair<long long, long long> vecino: grafo.vecindad(w)) {   
+                if (S[vecino.first] == 0 && vecino.second + t < minDist[vecino.first]) {
+                    minDist[vecino.first] = vecino.second + t;
+                    long long distancia = -minDist[vecino.first];
+                    candidatos.push({distancia, vecino.first});
                 }
             }
         }
@@ -95,34 +113,44 @@ vector<long long> dijkstra_modificado(grafoPonderado& grafo, vector<vector<long 
 
 int main() {
     long long n;
+    cin >> n ;
     long long m;
-    cin >> n >> m;
+    cin >> m;
 
-    vector<vector<pair<long long, long long>>> N(n + 1);
-    for (int i = 0; i < m; i++) {
+    vector<tuple<long long, long long, long long>> listaAristas;
+    for (long long i = 0; i < m; i++) {
         long long a;
         long long b;
         long long c;
 
         cin >> a >> b >> c;
-
-        N[a].push_back({b, c});
-        N[b].push_back({a, c});
+        a--; b--;
+        listaAristas.push_back({a, b, c});
     }
 
+    grafoPonderado grafo;
+    grafo.init(n, listaAristas);
+
     vector<vector<long long>> tiemposBloqueados(n);
-    for (int i = 0; i < n; i++) {
+    for (long long i = 0; i < n; i++) {
         long long k;
         cin >> k;
         vector<long long> tiempos(k);
 
-        for (int j = 0; j < k; j++) {
-            long long t;
-            cin >> t;
-            tiempos.push_back(t);
+        for (long long j = 0; j < k; j++) {
+            cin >> tiempos[j];
         }
-
-        tiemposBloqueados.push_back(tiempos);
+        tiemposBloqueados[i] = tiempos;
     }
+    
+    vector<long long> caminosMinimos = dijkstra_modificado(grafo, tiemposBloqueados, 0);
+    int res;
+    if (caminosMinimos[n-1] == INF){
+        res= -1;
+    } 
+    else {
+        res = caminosMinimos[n-1];
+    }
+    cout << res;    
     return 0;
 }
