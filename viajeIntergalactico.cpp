@@ -59,7 +59,7 @@ public:
     }
 };
 
-vector<long long> dijkstra_modificado(grafoPonderado& grafo, long long v) {
+vector<long long> dijkstra_modificado(grafoPonderado& grafo, vector<vector<long long>> tiemposBloqueados, long long v) {
     long long n = grafo.nodos();
     priority_queue<pair<long long, long long>> candidatos;
     vector<long long> S(n, 0);
@@ -82,12 +82,47 @@ vector<long long> dijkstra_modificado(grafoPonderado& grafo, long long v) {
                 long long distancia = -minDist[vecino.first];
                 candidatos.push({distancia, vecino.first});
             }
+
+            for (long long t: tiemposBloqueados[vecino.first]) {
+                if (minDist[vecino.first] == t) {
+                    minDist[vecino.first] = minDist[vecino.first] + 1;
+                }
+            }
         }
     }
     return minDist;
 }
 
 int main() {
-    
+    long long n;
+    long long m;
+    cin >> n >> m;
+
+    vector<vector<pair<long long, long long>>> N(n + 1);
+    for (int i = 0; i < m; i++) {
+        long long a;
+        long long b;
+        long long c;
+
+        cin >> a >> b >> c;
+
+        N[a].push_back({b, c});
+        N[b].push_back({a, c});
+    }
+
+    vector<vector<long long>> tiemposBloqueados(n);
+    for (int i = 0; i < n; i++) {
+        long long k;
+        cin >> k;
+        vector<long long> tiempos(k);
+
+        for (int j = 0; j < k; j++) {
+            long long t;
+            cin >> t;
+            tiempos.push_back(t);
+        }
+
+        tiemposBloqueados.push_back(tiempos);
+    }
     return 0;
 }
